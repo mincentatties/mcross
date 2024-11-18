@@ -1,0 +1,75 @@
+# Makefile for McRoss for PC (minGW)
+#-----------------------------------
+
+FFPOBJECTS = ffp.o formfactor.o ff_table.o
+NUCOBJECTS = mcross.o nucsro.o nucsro_run_params.o
+MAGOBJECTS = mcross.o magsro.o magsro_run_params.o formfactor.o ff_table.o
+WCOBJ      = mcross.o wc_calc.o
+COROBJ     = mcross.o cor_calc.o
+
+# debugging compiler command
+COML = gfortran -w -v -c -g -fbounds-check -Wuninitialized -O -ftrapv -fimplicit-none -fno-automatic 
+# optimized code command
+#COML = gfortran -w -v -c -O3 -ftree-vectorize 
+LINK = gfortran -o
+
+all:	ffp nucsro magsro wc_calc cor_calc
+
+ffp:	$(FFPOBJECTS)
+		$(LINK) ffp\ffp $(FFPOBJECTS)
+nucsro:	$(NUCOBJECTS)
+		$(LINK) nucsro\nucsro $(NUCOBJECTS)
+magsro:	$(MAGOBJECTS)
+		$(LINK) magsro\magsro $(MAGOBJECTS)	
+wc_calc:$(WCOBJ)
+	    $(LINK) nucsro\wc_calc $(WCOBJ)
+cor_calc:$(COROBJ)
+	    $(LINK) magsro\cor_calc $(COROBJ)
+
+ffp.o: 		ffp\ffp.f90
+			$(COML) ffp\ffp.f90
+
+formfactor.o: 	ffp\formfactor.f90
+			$(COML) ffp\formfactor.f90
+
+ff_table.o: ffp\ff_table.f90
+			$(COML) ffp\ff_table.f90
+
+nucsro.o:	nucsro\nucsro.f90
+			$(COML) nucsro\nucsro.f90
+		
+magsro.o:	magsro\magsro.f90
+			$(COML) magsro\magsro.f90
+		
+mcross.o:	mcross.f90
+			$(COML) mcross.f90
+		
+nucsro_run_params.o:	nucsro\nucsro_run_params.f90
+			$(COML) nucsro\nucsro_run_params.f90
+		
+magsro_run_params.o:	magsro\magsro_run_params.f90
+			$(COML) magsro\magsro_run_params.f90
+
+wc_calc.o:	nucsro\wc_calc.f90
+			$(COML) nucsro\wc_calc.f90
+
+cor_calc.o:	magsro\cor_calc.f90
+			$(COML) magsro\cor_calc.f90
+
+clean: 
+		del $(FFPOBJECTS)
+		del $(NUCOBJECTS)
+		del $(MAGOBJECTS)
+		del $(WCOBJ)
+		del $(COROBJ)
+		del mcross.mod
+		del ffp\ffp.exe magsro\magsro.exe nucsro\nucsro.exe nucsro\wc_calc.exe magsro\cor_calc.exe 
+install:
+	echo "Installing programs..."
+		copy ffp\ffp.exe       	 %USERPROFILE%\bin\ffp.exe
+		copy magsro\magsro.exe 	 %USERPROFILE%\bin\magsro.exe
+		copy nucsro\nucsro.exe 	 %USERPROFILE%\bin\nucsro.exe
+		copy nucsro\wc_calc.exe  %USERPROFILE%\bin\wc_calc.exe
+		copy magsro\cor_calc.exe %USERPROFILE%\bin\cor_calc.exe
+
+		
